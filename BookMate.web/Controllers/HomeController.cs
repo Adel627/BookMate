@@ -1,4 +1,4 @@
-using BookMate.web.Models;
+using BookMate.web.Core.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -14,11 +14,6 @@ namespace BookMate.web.Controllers
         }
 
         public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
         {
             return View();
         }

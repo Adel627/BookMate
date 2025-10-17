@@ -1,0 +1,20 @@
+﻿@model AuthorFormViewModel
+
+<h1 class="text-bg-info text-center mt-2">Edit Author</h1>
+
+<form asp-action="SaveEdit" asp-route-id="@Model.Id">
+    <fieldset>
+        <div>
+            <label asp-for="Name" class="form-label mt-4">Name</label>
+            <input asp-for="Name" class="form-control">
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary">Create</button>
+    </fieldset>
+</form>
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+}

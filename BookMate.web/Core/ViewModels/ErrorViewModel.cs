@@ -1,4 +1,4 @@
-namespace BookMate.web.Models
+namespace BookMate.web.Core.ViewModels
 {
     public class ErrorViewModel
     {

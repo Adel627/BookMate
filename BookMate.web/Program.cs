@@ -1,3 +1,13 @@
+using BookMate.web.Core.Models;
+using BookMate.web.Data;
+using BookMate.web.Interfaces;
+using BookMate.web.Repositories;
+using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+
 namespace BookMate.web
 {
     public class Program
@@ -8,6 +18,25 @@ namespace BookMate.web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+            });
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            //Configuer Mapster
+            var mappingConfig = TypeAdapterConfig.GlobalSettings;
+            mappingConfig.Scan(Assembly.GetExecutingAssembly());
+            builder.Services.AddSingleton<IMapper>(new Mapper(mappingConfig));
+            
+            //register services
+            builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+            builder.Services.AddScoped<IGenericRepo<Author>, GenericRepo<Author>>();
+            builder.Services.AddScoped<IBookRepo,BookRepo>();
+          
+            
 
             var app = builder.Build();
 

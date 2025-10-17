@@ -1,0 +1,48 @@
+﻿@model List<Category>
+
+
+    <div>
+        <br />
+    <a asp-controller="Category" asp-action="Create"  class="btn btn-lg btn-success">Add</a>
+    <br /><br/>
+        <table class="table table-hover" id="table">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">IsDeleted</th>
+            <th scope="col">CreatedById</th>
+            <th scope="col">CreatedOn</th>
+            <th scope="col">LastUpdatedById</th>
+            <th scope="col">LastUpdatedOn</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+            
+        </tr>
+    </thead>
+    <tbody>
+            @foreach(var item in Model)
+            {
+                <tr class="table-active">
+                    <td>@item.Id</td>
+                    <td >@item.Name</td>
+                    <td>@item.IsDeleted</td>
+                    <td>@item.CreatedById</td>
+                    <td>@item.CreatedOn</td>
+                    <td>@item.LastUpdatedById</td>
+                    <td>@item.LastUpdatedOn</td>
+                    <td><a asp-controller="Category" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info">Edit</a></td>
+                    <td><a asp-controller="Category" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a></td>
+
+                </tr>
+            }
+            
+       
+    </tbody>
+</table>
+    </div>
+    <script>
+    let table = new DataTable('#table');
+    </script>
