@@ -35,6 +35,7 @@ namespace BookMate.web
             builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
             builder.Services.AddScoped<IGenericRepo<Author>, GenericRepo<Author>>();
             builder.Services.AddScoped<IBookRepo,BookRepo>();
+            builder.Services.AddScoped<ImageOperation>();
           
             
 

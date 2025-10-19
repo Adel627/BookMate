@@ -1,3 +1,101 @@
-﻿<h1>Book index</h1>
+﻿@model BookViewModel
 
-<a asp-controller="Book" asp-action="Create" class="btn btn-lg btn-success">Add</a>
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Book List</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+                <form asp-action="Index">
+                    <div class="input-group">
+                        <div class="form-outline" data-mdb-input-init>
+                            <input type="search" asp-for="SearchTerm" class="form-control" placeholder="Search by Title" />
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" data-mdb-ripple-init>
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <div>
+                            <select asp-for="PageSize" class="form-select w-auto d-inline">
+                                <option value="5" selected>5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="col-6 text-end">
+                <a asp-action="Create" asp-route-page="@Model.Books.TotalPages" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i>  Create New Book
+                </a>
+            </div>
+        </div>
+
+        <table id="tblData" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+
+                    <th>Title</th>
+                    <th>Publisher</th>
+                    <th>AvilableForRental</th>
+                    <th>IsDeleted</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Books.Items)
+                {
+                    <tr>
+                        <td>@item.Title</td>
+                        <td>@item.Publisher</td>
+                        @if (item.IsAvailableForRental)
+                        {
+                            <td class="text-bg-success">Avilable</td>
+                        }
+                        else{
+                            <td class="text-bg-danger">Not Avilable</td>  
+                        }
+                        @if (item.IsDeleted)
+                        {
+                            <td class="text-bg-danger">Deleted</td>
+                        }
+                        else
+                        {
+                            <td class="text-bg-success">Not Deleted</td>
+                        }
+                        <td><a asp-action="Edit" asp-route-id="@item.Id" asp-route-page="@Model.Books.PageNumber" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a></td>
+                        <td><a asp-action="Delete" asp-route-id="@item.Id" asp-route-page="@Model.Books.PageNumber" class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Toggle Delete</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <nav aria-label="...">
+            <ul class="pagination">
+                <li class="page-item @(Model.Books.PageNumber == 1?"disabled":"")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.Books.PageNumber-1)" tabindex="-1">Previous</a>
+                </li>
+
+                @for (int i = 1; i <= Model.Books.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Books.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@i">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.Books.PageNumber == Model.Books.TotalPages?"disabled":"")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.Books.PageNumber+1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+
+
+    </div>
+</div>
+

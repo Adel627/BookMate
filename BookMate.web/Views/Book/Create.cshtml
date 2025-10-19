@@ -1,8 +1,10 @@
 ﻿@model BookFormViewModel
 
 <div class="col-md-10">
-    <form asp-action="SaveCreate" >
-        <fieldset>
+    <form asp-action="SaveCreate" enctype="multipart/form-data" >
+            <div>
+                <input type="hidden" asp-for="page" />
+            </div>
             <div >
                 <label asp-for="Title" class="form-label fw-bolder mt-4"></label>
                 <input asp-for="Title" class="form-control">
@@ -42,9 +44,9 @@
             </div >
             <br />
             <div class="col-md-2">
-                <input asp-for="ImageUrl" class="form-control" type="file">
-                <label asp-for="ImageUrl" class="form-label  "></label>
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                <input asp-for="Image" class="form-control" type="file" accept=".jpg,.jpeg,.png">
+                <label asp-for="Image" class="form-label  "></label>
+                <span asp-validation-for="Image" class="text-danger"></span>
 
             </div>
             <div>
@@ -69,8 +71,8 @@
             </div>
 
             <br />
-            <button type="submit" class="btn btn-lg btn-primary">Add</button>
-        </fieldset>
+            <button type="submit" class="btn btn-lg btn-primary">Create</button>
+       
     </form>
 </div>
 

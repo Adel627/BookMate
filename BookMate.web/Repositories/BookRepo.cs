@@ -1,4 +1,4 @@
-﻿using BookMate.web.Core.ViewModels;
+﻿using BookMate.web.Core.ViewModels.Book;
 using BookMate.web.Data;
 using BookMate.web.Interfaces;
 using MapsterMapper;
@@ -18,6 +18,17 @@ namespace BookMate.web.Repositories
             _context = context;
             _mapper = mapper;
             
+        }
+
+        public async Task<PaginatedList<Book>> GetBooksAsync(string SearchTerm , int pagenumber , int pagesize) 
+        {
+          IQueryable<Book> query =  _context.Books;
+            query = !string.IsNullOrEmpty(SearchTerm) ? 
+                query.Where( b=> b.Title.Contains(SearchTerm) ) : query;
+
+            PaginatedList<Book> books = await PaginatedList<Book>
+                .CreateAsync(query, pagenumber, pagesize);
+            return books;
         }
         public BookFormViewModel GetModel(BookFormViewModel? modelCreted=null)
         {
@@ -39,7 +50,9 @@ namespace BookMate.web.Repositories
         }
         public IQueryable< Book> GetBook(int id) 
         {
-            var book = _context.Books.Include(x => x.Categories).Where(x => x.Id ==id);
+            var book = _context.Books.Include(x => x.Categories)
+                .Include(b => b.Author)
+                .Where(x => x.Id ==id);
             return book;
         }
 
