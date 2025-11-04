@@ -1,25 +1,27 @@
-﻿using BookMate.web.Interfaces;
+﻿using BookMate.web.Extensions;
+using BookMate.web.Interfaces;
 using BookMate.web.Repositories;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookMate.web.Controllers
 {
+    [Authorize(Roles = AppRoles.Archive)]
     public class AuthorController : Controller
     {
-        
         private readonly IMapper _mapper;
-        private readonly IGenericRepo<Author> _repo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthorController(IMapper mapper,IGenericRepo<Author> repo)
+        public AuthorController(IMapper mapper,IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
-            _repo = repo;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task< IActionResult> Index()
         {
-            var authors = await _repo.GetAllAsync();
+            var authors = await _unitOfWork.Authors.GetAllAsync();
             return View(authors);
         }
         public IActionResult Create()
@@ -31,8 +33,9 @@ namespace BookMate.web.Controllers
             if (ModelState.IsValid) 
             {
               var author = _mapper.Map<Author>(model);
-               await  _repo.AddAsync(author);
-               await _repo.SaveAsync();
+                author.CreatedById = User.GetUserId();
+               await  _unitOfWork.Authors.AddAsync(author);
+               await _unitOfWork.CompleteAsync();
                 return RedirectToAction("Index");
             }
             return View("Create",model);
@@ -40,7 +43,7 @@ namespace BookMate.web.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            Author author = await _repo.GetByIdAsync(id);
+            Author author = await _unitOfWork.Authors.GetByIdAsync(id);
             AuthorFormViewModel model = _mapper.Map<AuthorFormViewModel>(author);
 
             return View(model);
@@ -50,11 +53,12 @@ namespace BookMate.web.Controllers
         {
             if (ModelState.IsValid)
             {
-                Author author = await _repo.GetByIdAsync(id);
+                Author author = await _unitOfWork.Authors.GetByIdAsync(id);
                 author.Name = model.Name;
                 author.LastUpdatedOn = DateTime.UtcNow;
-                await _repo.SaveAsync();
-                _repo.Update(author);
+                author.LastUpdatedById = User.GetUserId();
+                await _unitOfWork.CompleteAsync();
+                _unitOfWork.Authors.Update(author);
                 return RedirectToAction("Index");
             }
             return View("Edit", id);
@@ -62,8 +66,9 @@ namespace BookMate.web.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            await _repo.DeleteAsync(id);
-            await _repo.SaveAsync();
+            var author = await _unitOfWork.Authors.GetByIdAsync(id);
+            author.IsDeleted = !author.IsDeleted;
+            await _unitOfWork.CompleteAsync();
             return RedirectToAction("Index");
         }
 

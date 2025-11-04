@@ -3,4 +3,9 @@ global using BookMate.web.Core.ViewModels.Category;
 global using BookMate.web.Core.ViewModels.Author;
 global using BookMate.web.Helper;
 global using BookMate.web.Core.ViewModels.Book;
+global using BookMate.web.Core.ViewModels.Account;
+global using BookMate.web.Core.ViewModels.User;
+global using BookMate.web.Consts;
+
+
 

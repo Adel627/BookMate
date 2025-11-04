@@ -39,10 +39,8 @@ namespace BookMate.web.Repositories
              var entity = await GetByIdAsync(id);
              _context.Remove(entity);
         }
-        public async Task SaveAsync()
-        {
-           await _context.SaveChangesAsync();
-        }
+
+       
 
         
     }

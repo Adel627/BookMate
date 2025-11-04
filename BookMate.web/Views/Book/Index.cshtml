@@ -48,6 +48,7 @@
                     <th>IsDeleted</th>
                     <th></th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -69,8 +70,14 @@
                         }
                         else
                         {
+               
                             <td class="text-bg-success">Not Deleted</td>
                         }
+                        <td> <a asp-action="Details"
+                            asp-route-id="@item.Id" asp-route-page="@Model.Books.PageNumber" 
+                            class="btn btn-secondary bg-gradient border-0 form-control">
+                                Details
+                            </a></td>
                         <td><a asp-action="Edit" asp-route-id="@item.Id" asp-route-page="@Model.Books.PageNumber" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a></td>
                         <td><a asp-action="Delete" asp-route-id="@item.Id" asp-route-page="@Model.Books.PageNumber" class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Toggle Delete</a></td>
                     </tr>

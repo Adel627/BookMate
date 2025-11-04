@@ -1,0 +1,121 @@
+﻿@model BookDetailsViewModel
+
+<div class="card shadow border-0 mt-4 mb-4">
+    <div class="card-header bg-secondary bg-gradient text-light py-4">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="text-white text-uppercase">@Model.Title</h1>
+                <p class="text-white-50 fw-semibold mb-0">by @Model.AuthorName</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="py-3">
+            <div class="row">
+                <div class="col-6 col-md-2 offset-lg-1 pb-1">
+                    <a class="btn btn-outline-primary bg-gradient mb-5 fw-semibold btn-sm text-uppercase"
+                    asp-action="Index" asp-route-page="@Model.page">
+                        <small>Back to Books</small>
+                    </a>
+                </div>
+                <div>
+                    @if(Model.ImageUrl is not null)
+                    {
+                        <img src="~/images//book/@Model.ImageUrl"
+                             style="height:200px;width:400px; margin-left:800px" />
+                    }
+                  
+                    <a  onclick="AddCopy(@Model.Id)"
+                           class="btn btn-primary bg-gradient  w-100 py-2 text-uppercase fw-semibold">
+                            Add Copy </a>
+                </div>
+            </div>
+            <div class="row">
+                
+                <div class="col-12 col-lg-6 offset-lg-1">
+
+                    <div class="col-12 col-md-6 pb-4">
+                        @foreach(var category in Model.CategoriesName)
+                        {
+                            <span class="badge">@category</span>
+
+                        }
+                    </div>
+                    <div class="row ps-2">
+                        <h4 class="text-dark text-opacity-50 ">Publisher : @Model.Publisher</h4>
+                    </div>
+                    <div class="row ps-2">
+                        <h4 class="text-dark text-opacity-50  pb-2">
+                            Publishing on:
+                           
+                               @Model.PublishingDate
+                            
+                        </h4>
+                    </div>
+                    <div class="row text-center ps-2">
+                        
+                        <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
+                            <div class="text-dark text-opacity-50 fw-semibold">Hall</div>
+                        </div>
+                        <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
+                            <div class="text-dark text-opacity-50 fw-semibold">copies</div>
+                        </div>
+                        
+                    </div>
+                    <div class="row text-center ps-2">
+                        
+                        <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
+                            <div>@Model.Hall</div>
+                        </div>
+                        <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
+                            <div id="copy">@Model.copiesCount</div>
+                        </div>
+                        
+                    </div>
+                    <div class="row pl-2 my-3">
+                        <p class="text-secondary lh-sm">
+                           @Model.Description
+                        </p>
+                    </div>
+
+                    <div class="row ps-2">
+                        <h6 class="text-dark text-opacity-50 ">Creted By Id : @Model.CreatedById</h6>
+                    </div>
+                    <div class="row ps-2">
+                        <h6 class="text-dark text-opacity-50  pb-2">
+                            Creted On: @Model.CreatedOn </h6> 
+                    </div>
+                    <div class="row ps-2">
+                        <h6 class="text-dark text-opacity-50  pb-2">
+                            Updated By Id: @Model.LastUpdatedById
+                        </h6>
+                    </div>
+                    <div class="row ps-2">
+                        <h6 class="text-dark text-opacity-50  pb-2">
+                            Last Updated On: @Model.LastUpdatedOn
+                        </h6>
+                    </div>
+                 
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<<script>
+     function AddCopy(id) {
+         $.ajax({
+             url: "/Book/AddCopy/" + id,
+             type: "GET",
+             success: function (result) {
+                 
+                     $("#copy").text(result.count);
+
+                     // عرض رسالة نجاح
+                     toastr.success('Copy added successfully!', 'Success');  
+             }
+         } );
+     }
+</script>

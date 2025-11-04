@@ -22,6 +22,7 @@ namespace BookMate.web.Core.ViewModels.Book
 
         [Display(Name = "Categories")]
         public IList<int> SelectedCategories { get; set; } = new List<int>();
+        public int Copy { get; set; }
 
         public int page { get; set; }
 

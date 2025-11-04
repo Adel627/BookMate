@@ -32,8 +32,8 @@ namespace BookMate.web.Repositories
         }
         public BookFormViewModel GetModel(BookFormViewModel? modelCreted=null)
         {
-            IEnumerable<Author> authors = _context.Author;
-            IEnumerable<Category> categories = _context.Categories;
+            IEnumerable<Author> authors = _context.Author.Where(a => a.IsDeleted == false);
+            IEnumerable<Category> categories = _context.Categories.Where(c => c.IsDeleted == false);
             if (modelCreted == null) 
             {
                 BookFormViewModel model = new BookFormViewModel()
@@ -56,6 +56,34 @@ namespace BookMate.web.Repositories
             return book;
         }
 
+        public  BookDetailsViewModel GetBookDetails(int id)
+        {
+            var book =  _context.Books.Include(b => b.Categories)
+                .ThenInclude(c => c.Category)
+                .Include(b => b.Author)
+                .Where(b => b.Id == id)
+                .Select(b => new BookDetailsViewModel
+                {
+                    Id = b.Id,
+                    Title = b.Title,
+                    Publisher = b.Publisher,
+                    PublishingDate = b.PublishingDate,
+                    ImageUrl = b.ImageUrl,
+                    Hall = b.Hall,
+                    Description = b.Description,
+                    AuthorName = b.Author.Name,
+                    CategoriesName = b.Categories.Select(c => c.Category.Name).ToList(),
+                    copiesCount = b.Copy,
+                    CreatedById = b.CreatedById,
+                    CreatedOn = b.CreatedOn,
+                    LastUpdatedById = b.LastUpdatedById,
+                    LastUpdatedOn = b.LastUpdatedOn
+                }).SingleOrDefault();
+
+            return book;
+        }
+
+       
 
     }
 }

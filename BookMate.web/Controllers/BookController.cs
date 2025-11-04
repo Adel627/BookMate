@@ -1,9 +1,11 @@
 ﻿using BookMate.web.Core.Models;
 using BookMate.web.Core.ViewModels.Book;
 using BookMate.web.Data;
+using BookMate.web.Extensions;
 using BookMate.web.Interfaces;
 using BookMate.web.Repositories;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,33 +13,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookMate.web.Controllers
 {
+    [Authorize(Roles =AppRoles.Archive)]
     public class BookController : Controller
     {
-        private readonly IBookRepo _bookrepo;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ImageOperation _imageoperation;
-        private  List<string> _allowedExtensions = new() { ".jpg", ".jpeg", ".png" };
-        private  int _maxAllowedSize = 2097152;
 
-        public BookController(IBookRepo bookrepo,IMapper mapper, ImageOperation imageoperation)
+        
+        public BookController(IUnitOfWork unitOfWork,IMapper mapper)
         {
-            _bookrepo = bookrepo;
+            _unitOfWork = unitOfWork ;
             _mapper = mapper;
-            _imageoperation = imageoperation;
+           
         }
 
         public async Task<IActionResult> Index(string SearchTerm , int PageNumber = 1 , int  PageSize = 5)
         {
             BookViewModel model = new BookViewModel()
             {
-                Books = await _bookrepo.GetBooksAsync(SearchTerm , PageNumber, PageSize),      
+                Books = await _unitOfWork.Books.GetBooksAsync(SearchTerm , PageNumber, PageSize),      
             };
             return View(model);
         }
 
+        public  IActionResult Details(int id , int page)
+        {
+            var book =      _unitOfWork.Books.GetBookDetails(id);
+            book.page = page;
+         
+           return View(book);
+        }
+
         public IActionResult Create(int page)
         {
-            BookFormViewModel model = _bookrepo.GetModel();
+            BookFormViewModel model = _unitOfWork.Books.GetModel();
             model.page = page;
             return View(model);
         }
@@ -54,16 +63,16 @@ namespace BookMate.web.Controllers
                 if (model.Image != null)
                 {
                     var extension = Path.GetExtension(model.Image.FileName);
-                    if (!_allowedExtensions.Contains(extension))
+                    if (!ImageValid.allowedExtensions.Contains(extension))
                     {
                         ModelState.AddModelError(nameof(model.Image), "Not allowed extension");
                     }
 
-                    if (model.Image.Length > _maxAllowedSize)
+                    if (model.Image.Length > ImageValid. maxAllowedSize)
                     {
                         ModelState.AddModelError(nameof(model.Image), "Max Size");
                     }
-                    var imagename =  _imageoperation.Save(model.Image, "book");
+                    var imagename =  _unitOfWork.ImageOperation.Save(model.Image, "book");
                     book.ImageUrl = imagename;
                 }
                 foreach (var category in model.SelectedCategories) 
@@ -74,21 +83,22 @@ namespace BookMate.web.Controllers
                     };
                     book.Categories.Add(bookCategory);
                 }
-               await _bookrepo.AddAsync(book);
-               await  _bookrepo.SaveAsync();
+                book.CreatedById = User.GetUserId();
+               await _unitOfWork.Books.AddAsync(book);
+               await  _unitOfWork.CompleteAsync();
                 model.page = model.page == 0 ? 1 : model.page;
                 return RedirectToAction("Index" , new { PageNumber = model.page});
             }
-            model = _bookrepo.GetModel(model);
+            model = _unitOfWork.Books.GetModel(model);
             return View("Create",model);
         }
 
    
         public IActionResult Edit(int id , int page) 
         {
-            Book? book =  _bookrepo.GetBook(id).SingleOrDefault();
+            Book? book =  _unitOfWork.Books.GetBook(id).SingleOrDefault();
             BookFormViewModel model = _mapper.Map<BookFormViewModel>(book);
-            model = _bookrepo.GetModel(model);
+            model = _unitOfWork.Books.GetModel(model);
             model.page = page;
             return View(model);
         }
@@ -102,7 +112,7 @@ namespace BookMate.web.Controllers
 
             if (ModelState.IsValid)
             {
-                var book =  _bookrepo.GetBook(model.Id).SingleOrDefault();
+                var book =  _unitOfWork.Books.GetBook(model.Id).SingleOrDefault();
                 //if user send a photo 
                 if (model.Image != null)
                 
@@ -110,30 +120,30 @@ namespace BookMate.web.Controllers
                     // if the user have a photo
                     if (!string.IsNullOrEmpty(book.ImageUrl))
                     {
-                      _imageoperation.RemoveImage(book.ImageUrl , "book");
+                      _unitOfWork.ImageOperation.RemoveImage(book.ImageUrl , "book");
                     }
 
                     // the same steps of create 
                     var extension = Path.GetExtension(model.Image.FileName);
 
-                    if (!_allowedExtensions.Contains(extension))
+                    if (!ImageValid.allowedExtensions.Contains(extension))
                     {
                         ModelState.AddModelError(nameof(model.Image), "Not allowed extension");
                     }
 
-                    if (model.Image.Length > _maxAllowedSize)
+                    if (model.Image.Length > ImageValid.maxAllowedSize)
                     {
                         ModelState.AddModelError(nameof(model.Image), "Max Size");
                     }
 
-                      string imagename = _imageoperation.Save(model.Image, "book");
+                      string imagename = _unitOfWork.ImageOperation.Save(model.Image, "book");
                     
                     model.ImageUrl = imagename;
                 }
                 else
                 {
                     if ( model.IsDeletedImg is true && !string.IsNullOrEmpty(book.ImageUrl))
-                   _imageoperation.RemoveImage(book.ImageUrl , "book");
+                   _unitOfWork.ImageOperation.RemoveImage(book.ImageUrl , "book");
                      book.ImageUrl= null;
                 }
 
@@ -145,20 +155,28 @@ namespace BookMate.web.Controllers
                     book.Categories.Add(new BookCategory { CategoryId = category });
                 }
                 book.LastUpdatedOn = DateTime.UtcNow;
-                await _bookrepo.SaveAsync();
+                book.LastUpdatedById = User.GetUserId();
+                await _unitOfWork.CompleteAsync();
                 return RedirectToAction("Index", new { pageNumber = model.page });
             }
-            model = _bookrepo.GetModel(model);
+            model = _unitOfWork.Books.GetModel(model);
             return View("Edit", model);
         }
 
         public async Task< IActionResult> Delete(int id, int page) 
         {
-          var book = await _bookrepo.GetByIdAsync(id);
+          var book = await _unitOfWork.Books.GetByIdAsync(id);
             book.IsDeleted = !book.IsDeleted;
-            await _bookrepo.SaveAsync();
+            await _unitOfWork.CompleteAsync();
             return RedirectToAction("Index", new { pageNumber = page });
 
+        }
+        public async Task< IActionResult> AddCopy(int id)
+        {
+            var book = await _unitOfWork.Books.GetByIdAsync(id);
+            book.Copy++;
+            await _unitOfWork.CompleteAsync();
+            return Json(book.Copy);
         }
 
     }

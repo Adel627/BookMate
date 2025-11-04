@@ -13,9 +13,10 @@ namespace BookMate.web.Core.Models
         public string Hall { get; set; } = null!;
         public bool IsAvailableForRental { get; set; }
         public string Description { get; set; } = null!;
+        public int Copy {  get; set; }
         public Author Author { get; set; } = null!;
         public int AuthorId { get; set; }
         public ICollection<BookCategory> Categories { get; set; }=new List<BookCategory>();
-        public ICollection<BookCopy> Copies { get; set; }= new List<BookCopy>();
+        public ICollection<RentalBook> Rentals { get; set; } = new List<RentalBook>();
     }
 }

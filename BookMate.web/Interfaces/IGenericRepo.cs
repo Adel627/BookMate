@@ -7,7 +7,6 @@
         Task<T> GetByIdAsync(int id);
         void Update(T entity);
         Task DeleteAsync(int id);
-        Task SaveAsync();    
 
 
     }

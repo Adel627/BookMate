@@ -1,5 +1,6 @@
 ﻿using BookMate.web.Core.ViewModels.Book;
 using Mapster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -21,6 +22,9 @@ namespace BookMate.web.Core.Mapping
             config.NewConfig<Book , BookFormViewModel>()
                 .Map(dest => dest.SelectedCategories , src => src.Categories.Select(c=>c.CategoryId));
          
+            config.NewConfig<IdentityRole , SelectListItem>()
+                .Map(dest => dest.Text , src => src.Name)
+                .Map(dest => dest.Value , src => src.Name);   
         }
     }
 }

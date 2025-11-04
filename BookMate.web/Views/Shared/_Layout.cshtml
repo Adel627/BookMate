@@ -11,10 +11,11 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
+    
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <img src="/images/book.png" style="width:30px" />
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -26,17 +27,60 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Category" asp-action="Index">Category</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Author" asp-action="Index">Author</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Book" asp-action="Index">Book</a>
-                        </li>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                   Register
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Register" asp-route-role="@AppRoles.Reception">Register As Receptionest</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Register" asp-route-role="@AppRoles.Archive">Register As Archiver</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                        }
+                        else
+                        {
+                           
+                            if (User.IsInRole(AppRoles.Admin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="User" asp-action="AddUser">AddUser</a>
+                                </li>
+                            }
+                            if (User.IsInRole(AppRoles.Archive))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Category" asp-action="Index">Category</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Author" asp-action="Index">Author</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Book" asp-action="Index">Book</a>
+                                </li>
+                              
+
+                            }
+                             if (User.IsInRole(AppRoles.Reception))
+                            {
+                               
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="LogOut">Log Out</a>
+                            </li>
+                        }
+                
                     </ul>
-                    <partial name="_LoginPartial" />
+                  
                 </div>
             </div>
         </nav>

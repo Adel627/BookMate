@@ -2,17 +2,22 @@ using BookMate.web.Core.Models;
 using BookMate.web.Data;
 using BookMate.web.Interfaces;
 using BookMate.web.Repositories;
+using BookMate.web.Seeds;
+using BookMate.web.Services;
+using BookMate.web.Settings;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Reflection;
 
 namespace BookMate.web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -23,20 +28,28 @@ namespace BookMate.web
                 options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
             });
 
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.SignIn.RequireConfirmedEmail = true;
+            })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+            
+            
             //Configuer Mapster
             var mappingConfig = TypeAdapterConfig.GlobalSettings;
             mappingConfig.Scan(Assembly.GetExecutingAssembly());
             builder.Services.AddSingleton<IMapper>(new Mapper(mappingConfig));
             
             //register services
-            builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
-            builder.Services.AddScoped<IGenericRepo<Author>, GenericRepo<Author>>();
-            builder.Services.AddScoped<IBookRepo,BookRepo>();
-            builder.Services.AddScoped<ImageOperation>();
-          
+         
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            // register Services
+            builder.Services.AddTransient<IEmailSender,EmailSender>();
+            builder.Services.AddTransient<IEmailBodyBuilder,EmailBodyBuilder>();
+            // configer appseting readers
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
             
 
             var app = builder.Build();
@@ -55,6 +68,14 @@ namespace BookMate.web
             app.UseRouting();
 
             app.UseAuthorization();
+
+            //seed data
+            var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+            using var scope = scopeFactory.CreateScope();
+            var roleManger = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManger = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            await DefaultRoles.SeedAsync(roleManger);
+            await DefaultUsers.SeedAsync(userManger);
 
             app.MapControllerRoute(
                 name: "default",
