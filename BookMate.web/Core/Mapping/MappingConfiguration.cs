@@ -18,13 +18,22 @@ namespace BookMate.web.Core.Mapping
                 .Map(dest => dest.Text, src => src.Name)
                 .Map(dest => dest.Value, src => src.Id);
             config.NewConfig<BookFormViewModel, Book>()
-               .Ignore(dest => dest.Categories);
+               .Ignore(dest => dest.Categories)
+               .Ignore(dest => dest.ImageUrl);
             config.NewConfig<Book , BookFormViewModel>()
                 .Map(dest => dest.SelectedCategories , src => src.Categories.Select(c=>c.CategoryId));
          
             config.NewConfig<IdentityRole , SelectListItem>()
                 .Map(dest => dest.Text , src => src.Name)
-                .Map(dest => dest.Value , src => src.Name);   
+                .Map(dest => dest.Value , src => src.Name);
+            //Subscriber
+            config.NewConfig<Governorate, SelectListItem>()
+                .Map(dest => dest.Text, src => src.Name)
+                .Map(dest => dest.Value, src => src.Id);
+
+            config.NewConfig<Area, SelectListItem>()
+               .Map(dest => dest.Text, src => src.Name)
+               .Map(dest => dest.Value, src => src.Id);
         }
     }
 }

@@ -5,7 +5,7 @@
         ICategoryRepo Categories { get; }
         IBookRepo Books { get;}
         IAuthorRepo Authors { get; } 
-        ImageOperation ImageOperation { get; }
+        ISubscriberRepo Subscribers { get; }
         Task<int> CompleteAsync();
 
     }

@@ -73,14 +73,16 @@ namespace BookMate.web.Controllers
                             );
 
 
-                        var body = _emailBodyBuilder.GetEmailBody(
-                           "https://res.cloudinary.com/ddkthlwge/image/upload/v1762219319/Email_pemcv8.jpg",
-                            $"Hey {appUser.FullName}, thanks for joining us!" ,
-                            "please confirm your email",
-                            $"{HtmlEncoder.Default.Encode(callbackUrl!)}",
-                            "Active Account!"
+                        var placeholders = new Dictionary<string, string>()
+                        {             
+                             { "imageUrl", "https://res.cloudinary.com/ddkthlwge/image/upload/v1762219319/Email_pemcv8.jpg" },
+                             { "header", $"Hey {appUser.FullName}, thanks for joining us!" },
+                             { "body", "please confirm your email" },
+                             {"url" ,  $"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
+                            {"linkTitle" , "Active Account!" }
+                        };
 
-                            );
+                        var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email,placeholders);
                         await _emailSender.SendEmailAsync(appUser.Email, "Confirm Your Account", body  );
                         return View("RegisterConfirmation");
                     }
@@ -175,13 +177,16 @@ namespace BookMate.web.Controllers
                     Request.Scheme
 
                     );
-                var body = _emailBodyBuilder.GetEmailBody(
-                     "https://res.cloudinary.com/ddkthlwge/image/upload/v1762297054/computer-security-with-login-password-padlock_rtq1t0.jpg",
-                        $"Hey {user.FullName}, Reset Password!",
-                        "please reset your password",
-                        $"{HtmlEncoder.Default.Encode(callbackUrl!)}",
-                        "Reset Password!"
-                    );
+                var placeholders = new Dictionary<string, string>()
+                        {
+                             { "imageUrl", "https://res.cloudinary.com/ddkthlwge/image/upload/v1762297054/computer-security-with-login-password-padlock_rtq1t0.jpg" },
+                             { "header", $"Hey {user.FullName}, Reset Password!" },
+                             { "body", "please reset your password" },
+                             {"url" ,   $"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
+                            {"linkTitle" ,"Reset Password!" }
+                        };
+
+                var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email , placeholders );
                 await _emailSender.SendEmailAsync(user.Email!, "Reset Your Password", body);
             }
             return View("ForgotPasswordConfirmation");
@@ -246,16 +251,17 @@ namespace BookMate.web.Controllers
                         Request.Scheme
 
                         );
+                    var placeholders = new Dictionary<string, string>()
+                        {
+                             { "imageUrl", "https://res.cloudinary.com/ddkthlwge/image/upload/v1762219319/Email_pemcv8.jpg" },
+                             { "header",    $"Hey {user.FullName}, We Resend Email To You!"},
+                             { "body", "please confirm your email" },
+                             {"url" ,   $"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
+                            {"linkTitle" ,"Active Account!"}
+                        };
 
 
-                    var body = _emailBodyBuilder.GetEmailBody(
-                       "https://res.cloudinary.com/ddkthlwge/image/upload/v1762219319/Email_pemcv8.jpg",
-                        $"Hey {user.FullName}, We Resend Email To You!",
-                        "please confirm your email",
-                        $"{HtmlEncoder.Default.Encode(callbackUrl!)}",
-                        "Active Account!"
-
-                        );
+                    var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email , placeholders);
                     await _emailSender.SendEmailAsync(user.Email!, "Confirm Your Account", body);
                 }
                 return View("RegisterConfirmation");

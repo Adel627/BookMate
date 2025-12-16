@@ -1,0 +1,163 @@
+﻿@model Subscriber
+<div>
+    @if (Model is null)
+    {
+        <p class="text-danger">No Subscriber Found</p>
+    }
+    else
+    {
+        <div class="card shadow border-0 mt-4 mb-4">
+          
+                    @if (Model.IsBlackListed)
+                    {
+                       <div class="card-header bg-danger bg-danger text-light py-4">
+                        <div class="row">
+                        <div class="col-12 text-center">
+                            <h1 class="text-white text-uppercase">@Model.FirstName  <strong>BlackListed</strong> </h1>
+                            <p class="text-white-50 fw-semibold mb-0"> @Model.LastName</p>
+                        </div>
+                        </div>
+                       </div>
+                    }
+                    else
+                    {
+                        <div class="card-header bg-secondary bg-gradient text-light py-4">
+                         <div class="row">
+                          <div class="col-12 text-center">
+                            <h1 class="text-white text-uppercase">@Model.FirstName </h1>
+                            <p class="text-white-50 fw-semibold mb-0"> @Model.LastName</p>
+                         </div>
+                        </div>
+                        </div>
+                    }
+
+              
+            <div class="card-body">
+                <div class="py-3">
+                    <div class="row">
+                        <div>
+                            @if (Model.ImageUrl is not null)
+                            {
+                                <img src="@Model.ImageUrl"
+                                     style="height:200px;width:400px; margin-left:800px" />
+                            }
+
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-12 col-lg-6 offset-lg-1">
+
+                            @*   <div class="col-12 col-md-6 pb-4">
+                        @foreach (var category in Model.CategoriesName)
+                        {
+                        <span class="badge">@category</span>
+
+                        }
+                        </div> *@
+                            <div class="row ps-2">
+                                <h4 class="text-dark text-opacity-50 ">National Id : @Model.NationalId</h4>
+                            </div>
+                            <div class="row ps-2">
+                                <h4 class="text-dark text-opacity-50  pb-2">
+                                    birth of Date :
+
+                                    @Model.DateOfBirth
+
+                                </h4>
+                            </div>
+                            <div class="container mt-3">
+
+                                <!-- العناوين -->
+                                <div class="row text-center fw-semibold text-secondary border-bottom py-2 justify-content-center">
+                                    <div class="col-10 col-lg-4">Mobile Number</div>
+                                    <div class="col-10 col-lg-4">Email</div>
+                                </div>
+
+                                <!-- القيم -->
+                                <div class="row text-center fw-bold text-warning py-2 justify-content-center">
+                                    <div class="col-10 col-lg-4 bg-white border-bottom py-2">
+                                        @Model.MobileNumber
+                                    </div>
+                                    <div class="col-11 col-lg-5 bg-white border-bottom py-2" id="copy">
+                                        @Model.Email
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row pl-2 my-3">
+                                <p class="text-secondary lh-sm">
+                                    @Model?.Governorate?.Name  @Model?.Area?.Name  @Model?.Address
+                                </p>
+                            </div>
+
+                            <div class="row ps-2">
+                                <h6 class="text-dark text-opacity-50 ">Creted By Id : @Model?.CreatedById</h6>
+                            </div>
+                            <div class="row ps-2">
+                                <h6 class="text-dark text-opacity-50  pb-2">
+                                    Creted On: @Model.CreatedOn
+                                </h6>
+                            </div>
+                            <div class="row ps-2">
+                                <h6 class="text-dark text-opacity-50  pb-2">
+                                    Updated By Id: @Model.LastUpdatedById
+                                </h6>
+                            </div>
+                            <div class="row ps-2">
+                                <h6 class="text-dark text-opacity-50  pb-2">
+                                    Last Updated On: @Model.LastUpdatedOn
+                                </h6>
+                            </div>
+
+                            @if (!Model.IsBlackListed)
+                            {
+                                
+                              <a asp-controller="Subscriber" asp-action="RenewSubscription"
+                                   asp-route-subscriberId="@Model.Id" class="btn-lg btn-secondary">
+                                  RenewSubscription
+                                  </a>
+                                  <br />
+                                 
+
+                            }
+                            <table id="tblData" class="table table-bordered table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Created By Id</th>
+                                        <th>Created On</th>
+                                        <th>Status</th>
+                                      
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(var item in Model.Subscriptions)
+                                    {
+                                        <tr>
+                                            <td>@item.StartDate</td>
+                                            <td>@item.EndDate</td>
+                                            <td>@item.CreatedById</td>
+                                            <td>@item.CreatedOn</td>
+                                            <td>
+                                              @(item.StartDate>DateTime.Today ?"":
+                                              item.EndDate<DateTime.Today?SubscriptionStatus.Expired
+                                              :SubscriptionStatus.Active)
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

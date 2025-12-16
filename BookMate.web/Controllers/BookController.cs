@@ -4,6 +4,7 @@ using BookMate.web.Data;
 using BookMate.web.Extensions;
 using BookMate.web.Interfaces;
 using BookMate.web.Repositories;
+using BookMate.web.Services;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -17,12 +18,14 @@ namespace BookMate.web.Controllers
     public class BookController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IImageService _imageService;
         private readonly IMapper _mapper;
 
         
-        public BookController(IUnitOfWork unitOfWork,IMapper mapper)
+        public BookController(IUnitOfWork unitOfWork, IImageService imageService , IMapper mapper)
         {
             _unitOfWork = unitOfWork ;
+            _imageService = imageService ;
             _mapper = mapper;
            
         }
@@ -62,18 +65,17 @@ namespace BookMate.web.Controllers
                 var book = _mapper.Map<Book>(model);
                 if (model.Image != null)
                 {
-                    var extension = Path.GetExtension(model.Image.FileName);
-                    if (!ImageValid.allowedExtensions.Contains(extension))
-                    {
-                        ModelState.AddModelError(nameof(model.Image), "Not allowed extension");
-                    }
+                    var imageName = $"{Guid.NewGuid()}{Path.GetExtension(model.Image.FileName)}";
+                    var imagePath = "/images/book";
 
-                    if (model.Image.Length > ImageValid. maxAllowedSize)
+                    var (isUploaded, errorMessage) = await _imageService.UploadAsync(model.Image, imageName, imagePath, hasThumbnail: false);
+
+                    if (!isUploaded)
                     {
-                        ModelState.AddModelError(nameof(model.Image), "Max Size");
+                        ModelState.AddModelError("Image", errorMessage!);
+                        return View("Create", _unitOfWork.Books.GetModel(model));
                     }
-                    var imagename =  _unitOfWork.ImageOperation.Save(model.Image, "book");
-                    book.ImageUrl = imagename;
+                    book.ImageUrl = imageName;
                 }
                 foreach (var category in model.SelectedCategories) 
                 {
@@ -115,36 +117,34 @@ namespace BookMate.web.Controllers
                 var book =  _unitOfWork.Books.GetBook(model.Id).SingleOrDefault();
                 //if user send a photo 
                 if (model.Image != null)
-                
                 {
                     // if the user have a photo
                     if (!string.IsNullOrEmpty(book.ImageUrl))
                     {
-                      _unitOfWork.ImageOperation.RemoveImage(book.ImageUrl , "book");
+                      _imageService.Delete($"/images/book/{book.ImageUrl}");
                     }
 
                     // the same steps of create 
-                    var extension = Path.GetExtension(model.Image.FileName);
+                    var imageName = $"{Guid.NewGuid()}{Path.GetExtension(model.Image.FileName)}";
+                    var imagePath = "/images/book";
 
-                    if (!ImageValid.allowedExtensions.Contains(extension))
+                    var (isUploaded, errorMessage) = await _imageService.UploadAsync(model.Image, imageName, imagePath, hasThumbnail: false);
+
+                    if (!isUploaded)
                     {
-                        ModelState.AddModelError(nameof(model.Image), "Not allowed extension");
+                        ModelState.AddModelError("Image", errorMessage!);
+                        return View("Edit", _unitOfWork.Books.GetModel(model));
                     }
-
-                    if (model.Image.Length > ImageValid.maxAllowedSize)
-                    {
-                        ModelState.AddModelError(nameof(model.Image), "Max Size");
-                    }
-
-                      string imagename = _unitOfWork.ImageOperation.Save(model.Image, "book");
-                    
-                    model.ImageUrl = imagename;
+                    book.ImageUrl = imageName;
                 }
                 else
                 {
                     if ( model.IsDeletedImg is true && !string.IsNullOrEmpty(book.ImageUrl))
-                   _unitOfWork.ImageOperation.RemoveImage(book.ImageUrl , "book");
-                     book.ImageUrl= null;
+                    {
+                        _imageService.Delete($"/images/book/{book.ImageUrl}");
+                        book.ImageUrl = null;
+                    }
+                   
                 }
 
                 _mapper.Map(model, book);

@@ -46,11 +46,12 @@ namespace BookMate.web
          
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             // register Services
+            builder.Services.AddTransient<IImageService , ImageService>();  
             builder.Services.AddTransient<IEmailSender,EmailSender>();
             builder.Services.AddTransient<IEmailBodyBuilder,EmailBodyBuilder>();
             // configer appseting readers
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
-            
+           builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(nameof(CloudinarySettings))); 
 
             var app = builder.Build();
 

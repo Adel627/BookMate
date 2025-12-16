@@ -30,7 +30,7 @@ namespace BookMate.web.Core.Models
 
         [MaxLength(500)]
         public string ImageThumbnailUrl { get; set; } = null!;
-
+        public string ImagePublicId { get; set; } = null!;
         public int AreaId { get; set; }
 
         public Area? Area { get; set; }

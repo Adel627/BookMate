@@ -6,6 +6,6 @@ global using BookMate.web.Core.ViewModels.Book;
 global using BookMate.web.Core.ViewModels.Account;
 global using BookMate.web.Core.ViewModels.User;
 global using BookMate.web.Consts;
-
+global using BookMate.web.Core.ViewModels.Subscriber;
 
 

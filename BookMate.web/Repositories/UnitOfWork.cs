@@ -18,14 +18,14 @@ namespace BookMate.web.Repositories
             Categories = new CategoryRepo(_context);
             Books = new BookRepo(_context , mapper);
             Authors = new AuthorRepo(_context);
-            ImageOperation = new ImageOperation(_environment);
+            Subscribers = new SubscriberRepo(_context , mapper);
 
         }
         public ICategoryRepo Categories { get; private set; }
         public IBookRepo Books { get; private set; }
         public IAuthorRepo Authors { get; private set; }
+        public ISubscriberRepo Subscribers { get; private set; }
 
-        public ImageOperation ImageOperation { get; private set; }  
 
         public async Task<int> CompleteAsync()
         {

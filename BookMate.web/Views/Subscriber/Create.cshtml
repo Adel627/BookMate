@@ -1,0 +1,124 @@
+﻿@model SubscriberFormViewModel
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2"> @(Model.Id != 0 ? "Update" : "Create") Subscriber</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-for="Id" hidden />
+            <div class="row">
+                <div class="col-10">
+                    <div class="border p-3">
+                        <div asp-validation-summary="ModelOnly"></div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="FirstName" class="form-control border-0 shadow" />
+                            <label asp-for="FirstName" class="ms-2"></label>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="LastName" class="form-control border-0 shadow" />
+                            <label asp-for="LastName" class="ms-2"></label>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input type="date" asp-for="DateOfBirth" class="form-control border-0 shadow" />
+                            <label asp-for="DateOfBirth" class="ms-2"></label>
+                            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="NationalId" class="form-control border-0 shadow" />
+                            <label asp-for="NationalId" class="ms-2"></label>
+                            <span asp-validation-for="NationalId" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input  asp-for="MobileNumber" class="form-control border-0 shadow" />
+                            <label asp-for="MobileNumber" class="ms-2"></label>
+                            <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                        </div>
+                        <div >
+                            <input type="checkbox" asp-for="HasWhatsApp" />
+                            <label asp-for="HasWhatsApp"></label>
+                        </div>
+
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Email" type="email" class="form-control border-0 shadow" placeholder="example123@gmail.com" />
+                            <label asp-for="Email" class="ms-2"></label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating py-2 col-12">
+                            <select asp-for="GovernorateId" asp-items="@Model.Governorates"
+                                 onchange="GetAreas()" class="form-select border-0 shadow">
+                                <option disabled selected>--Select Governorate--</option>
+                            </select>
+                            <label asp-for="GovernorateId" class="ms-2"></label>
+                            <span asp-validation-for="GovernorateId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating py-2 col-12">
+                            <select id="areaid" asp-for="AreaId" class="form-select border-0 shadow">
+                            </select>
+                            <label asp-for="AreaId" class="ms-2"></label>
+                            <span asp-validation-for="AreaId" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Address" class="form-control border-0 shadow" />
+                            <label asp-for="Address" class="ms-2"></label>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating py-2 col-12">
+                            <input type="file" asp-for="Image" class="form-control border-0 shadow" multiple />
+                            <label asp-for="Image" class="ms-2"></label>
+                            <span asp-validation-for="Image" class="text-danger"></span>
+
+                        </div>
+                        <div class="row pt-2">
+                            <div class="col-6 col-md-3">
+                                @if (Model.Id != 0)
+                                {
+                                    <button type="submit" class="btn btn-primary form-control">Update</button>
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-primary form-control">Create</button>
+                                }
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a  asp-action="Index" class="btn btn-outline-primary border  form-control">
+                                    Back 
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { 
+    <script>
+        function GetAreas(){
+            var governorateId = document.getElementById("GovernorateId").value;
+            //console.log(governorateId);
+            var areas = document.getElementById("areaid");
+            areas.innerHTML = "";
+
+            $.ajax({
+                url: "/Subscriber/GetAreas?id=" + governorateId,
+                success: function (result) {
+                     for (let area of result) {
+                         areas.innerHTML += "<option value='" + area.id + "'>" + area.name + "</option>";
+                     }
+                }
+            });
+        }
+    </script>
+        <partial name="_ValidationScriptsPartial" />
+}

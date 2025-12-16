@@ -1,0 +1,53 @@
+﻿<div class="card shadow border-0 my-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Subscribers</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+                <form id="searchForm">
+                    <div class="input-group">
+                        <div class="form-outline" data-mdb-input-init>
+                            <input type="search" id="searchTerm" name="searchTerm" class="form-control" placeholder="Search by NationalId MobileNumber or Email" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" data-mdb-ripple-init>
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+            <div class="col-6 text-end">
+                <a  href="/Subscriber/Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i>  Create New Subscriber
+                </a>
+            </div>
+            <div id="divsub"></div>
+        </div>
+    </div>
+    
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#searchForm").submit(function (e) {
+        e.preventDefault();
+       
+        var searchterm = $("#searchTerm").val();
+        $.ajax({
+            url: '/Subscriber/Search?searchTerm='+searchterm,
+            type: 'GET',
+            success: function (result) {
+                $("#divsub").html(result); // inject partial view
+            },
+            error: function () {
+                $("#divsub").html("<p style='color:red'>Error occurred</p>");
+            }
+        });
+    });
+</script>
+
