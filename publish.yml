@@ -1,6 +1,6 @@
-name: Build and Publish BookMate
+﻿name: Build and Publish BookMate to Master
 
-# ???? ??? ?? push ??? ????? main
+# يعمل عند كل push على الفرع front
 on:
   push:
     branches: [ Front ]
@@ -10,31 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1?? ??? ????? ?? GitHub
+    # 1️⃣ استنساخ الريبو
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # 2?? ????? .NET SDK
+    # 2️⃣ إعداد .NET
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '9.0.x' # ???? ??? ???? ??????
+        dotnet-version: '9.0.x'  # عدّل حسب نسخة مشروعك
 
-    # 3?? ??????? ?????
+    # 3️⃣ استعادة الحزم
     - name: Restore dependencies
       run: dotnet restore
 
-    # 4?? ???? ???? ???????
+    # 4️⃣ بناء ونشر المشروع
     - name: Build and Publish
       run: dotnet publish -c Release -o publish
 
-    # 5?? ??? ????? Publish ??? ??? publish
-    - name: Push Publish branch
+    # 5️⃣ رفع ملفات Publish إلى فرع master
+    - name: Push Publish to Master
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
-        git checkout -B publish
+        git checkout -B master
         cp -r publish/* .
         git add .
-        git commit -m "Publish BookMate build"
-        git push -f origin publish
+        git commit -m "Publish BookMate build to master"
+        git push -f origin master
