@@ -1,0 +1,40 @@
+name: Build and Publish BookMate
+
+# ???? ??? ?? push ??? ????? main
+on:
+  push:
+    branches: [ Front ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1?? ??? ????? ?? GitHub
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2?? ????? .NET SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x' # ???? ??? ???? ??????
+
+    # 3?? ??????? ?????
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # 4?? ???? ???? ???????
+    - name: Build and Publish
+      run: dotnet publish -c Release -o publish
+
+    # 5?? ??? ????? Publish ??? ??? publish
+    - name: Push Publish branch
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "actions@github.com"
+        git checkout -B publish
+        cp -r publish/* .
+        git add .
+        git commit -m "Publish BookMate build"
+        git push -f origin publish
